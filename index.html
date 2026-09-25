@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Alex Barbu, robotics engineer</title>
+  <meta name="description" content="Alex Barbu: robotics engineer in Bucharest building robots that see and listen. ROS 2, edge AI, open-vocabulary perception.">
+  <meta property="og:title" content="Alex Barbu, robotics engineer">
+  <meta property="og:description" content="Robots that see and listen. ROS 2, edge AI, open-vocabulary perception.">
+  <meta property="og:image" content="assets/img/detection.jpg">
+  <link rel="icon" href="assets/img/avatar.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="nav-home" href="#top" aria-label="Back to top"><img src="assets/img/avatar.jpg" alt="" width="30" height="30"></a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#research">Research</a>
+        <a href="#projects">Projects</a>
+        <a id="nav-cv" href="#">CV</a>
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme"></button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="column">
+    <section class="hero" id="top">
+      <div class="banner" aria-hidden="true"><img src="assets/img/arm.jpg" alt=""></div>
+      <div class="hero-body">
+        <img class="avatar" src="assets/img/avatar.jpg" alt="Portrait of Alex Barbu" width="96" height="96">
+        <h1 id="hero-name"></h1>
+        <p class="roles" id="hero-roles"></p>
+        <div class="pill-row">
+          <a class="pill" id="hero-status" href="#research"><span class="dot" aria-hidden="true"></span><span></span></a>
+          <span class="or">or</span>
+          <a class="pill" id="hero-email" href="#"><span class="ico" data-icon="mail"></span>Email me</a>
+        </div>
+        <p class="intro" id="hero-intro"></p>
+      </div>
+      <ul class="social-row" id="hero-socials"></ul>
+    </section>
+
+    <section class="section" id="career" aria-labelledby="career-h">
+      <div class="section-head">
+        <div>
+          <p class="kicker">So far</p>
+          <div class="title-row">
+            <h2 id="career-h">Career</h2>
+            <span class="annot" aria-hidden="true">
+              <svg viewBox="0 0 60 40" width="46" height="30"><path d="M56 6 C 40 2, 30 10, 36 18 C 42 26, 28 30, 8 30 M8 30 l7 -6 M8 30 l8 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              tap a node
+            </span>
+          </div>
+        </div>
+        <p class="head-aside">Need a copy? <a class="btn-small" id="career-cv" href="#"><span class="ico" data-icon="doc"></span>CV</a></p>
+      </div>
+      <div class="trace" id="trace">
+        <article class="trace-card" id="trace-card" aria-live="polite"></article>
+        <div class="trace-board" id="trace-board">
+          <svg class="trace-svg" id="trace-svg" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="research" aria-labelledby="research-h">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Currently building</p>
+          <h2 id="research-h">Research</h2>
+        </div>
+      </div>
+      <h3 class="research-title" id="research-title"></h3>
+      <p class="research-meta" id="research-meta"></p>
+      <p class="prose" id="research-summary"></p>
+      <figure class="frame">
+        <img id="research-img" alt="" loading="lazy">
+        <figcaption>Live frame from the arm's shoulder camera</figcaption>
+      </figure>
+      <div class="editor" id="editor" role="img" aria-label="Pipeline timeline"></div>
+      <p class="fine" id="timeline-note"></p>
+      <ul class="status" id="research-status"></ul>
+    </section>
+
+    <section class="section" id="skills" aria-labelledby="skills-h">
+      <div class="section-head"><div><p class="kicker">Core</p><h2 id="skills-h">Skills</h2></div></div>
+      <ul class="chips" id="skills-list"></ul>
+    </section>
+
+    <section class="section" id="projects" aria-labelledby="projects-h">
+      <div class="section-head"><div><p class="kicker">Featured</p><h2 id="projects-h">Projects</h2></div></div>
+      <div class="carousel" id="carousel" aria-roledescription="carousel">
+        <div class="car-viewport"><div class="car-track" id="car-track"></div></div>
+        <button class="car-btn prev" id="car-prev" type="button" aria-label="Previous project"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="car-btn next" id="car-next" type="button" aria-label="Next project"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="dots" id="car-dots" role="tablist" aria-label="Choose project"></div>
+      <div class="center"><button class="btn" id="repos-toggle" type="button" aria-expanded="false" aria-controls="repos">Show all repositories</button></div>
+      <div class="repos" id="repos" hidden></div>
+    </section>
+
+    <section class="section" id="github" aria-labelledby="github-h" hidden>
+      <div class="section-head"><div><p class="kicker">Contributions</p><h2 id="github-h">GitHub</h2></div></div>
+      <div class="heat-wrap"><div class="heat" id="heat"></div></div>
+      <div class="heat-foot"><span id="heat-total"></span><span class="legend" aria-hidden="true">Less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> More</span></div>
+    </section>
+
+    <section class="section" id="recognition" aria-labelledby="recognition-h">
+      <div class="section-head"><div><p class="kicker">Won</p><h2 id="recognition-h">Awards</h2></div></div>
+      <ul class="rows" id="awards"></ul>
+      <div class="section-head sub"><div><p class="kicker">Paper of</p><h2>Certifications</h2></div></div>
+      <ul class="rows" id="certs"></ul>
+      <div class="center"><button class="btn" id="certs-more" type="button" aria-expanded="false"></button></div>
+    </section>
+
+    <footer class="section footer" aria-labelledby="footer-h">
+      <div class="foot-grid">
+        <img class="foot-avatar" src="assets/img/avatar.jpg" alt="" width="120" height="120" loading="lazy">
+        <div>
+          <p class="kicker" id="footer-h">Get in touch</p>
+          <ul class="foot-icons" id="foot-socials"></ul>
+          <p class="foot-roles" id="foot-roles"></p>
+          <a class="btn" id="foot-email" href="#">Email me</a>
+        </div>
+      </div>
+      <p class="sync" id="sync"></p>
+      <div class="bigname" aria-hidden="true">Barbu</div>
+    </footer>
+  </main>
+
+  <script src="content/profile.js"></script>
+  <script src="data/github.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

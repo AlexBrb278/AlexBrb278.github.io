@@ -1,0 +1,36 @@
+{
+  "username": "AlexBrb278",
+
+  "_private_allowlist": "Private repos appear ONLY if named here. Nothing private is published by default.",
+  "private_allowlist": [],
+
+  "_hide": "Public repos to leave off the site.",
+  "hide": [],
+
+  "_include_forks": "Forks are skipped unless named here.",
+  "include_forks": [],
+
+  "_overrides": "Rewrite title/description per repo. Use this for any private repo whose GitHub description was written for you, not the public.",
+  "overrides": {
+    "city_shadow_planning": {
+      "title": "Shade-aware walking navigation",
+      "description": "Routes you through the shadiest streets by projecting building shadows from OpenStreetMap heights and the sun's position."
+    },
+    "nlp_project": {
+      "title": "Noise-robust intent detection",
+      "description": "How ML intent classifiers hold up against typos, keyboard noise and speech-recognition errors."
+    },
+    "plantdiseasedetector": {
+      "title": "Plant disease detector",
+      "description": "MATLAB deep-learning GUI that identifies diseases in tomato, potato and pepper leaves. Won 1st place at ZEM 2024.",
+      "language": "MATLAB"
+    },
+    "Stroke-Risk-Predictor": {
+      "title": "Stroke risk predictor",
+      "description": "XGBoost model with SMOTE for class imbalance, wrapped in a GUI for clinical inference."
+    }
+  },
+
+  "_contributions_min_to_show": "The heatmap section hides itself below this many contributions in the last year.",
+  "contributions_min_to_show": 150
+}

@@ -1,0 +1,54 @@
+name: Build and deploy portfolio
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * *" # daily, 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch GitHub data
+        run: node scripts/fetch-github.mjs
+        env:
+          GH_PAT: ${{ secrets.PORTFOLIO_PAT }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp -r index.html assets data _site/
+          mkdir _site/content && cp content/profile.js _site/content/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
