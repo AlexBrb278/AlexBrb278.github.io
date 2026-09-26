@@ -105,12 +105,14 @@ window.PROFILE = {
     "Fusion 360", "SolidWorks", "Git"
   ],
 
-  // Featured carousel. `flow` is the signal chain drawn on the slide; `media` (photos, clips) replaces it when present.
+  // Featured carousel. `flow` is the chain of steps drawn on the slide, styled by `diagram.style` (chain, link, signal or map; see assets/diagrams.js).
+  // `media` (photos, clips) replaces the diagram when present.
   projects: [
     {
       title: "Robotic arm on a drone",
       blurb: "A 6-DOF Dynamixel arm flying on a Pixhawk 6 drone, controlled from a laptop over radio with joysticks.",
       flow: ["Arduino joysticks", "PyQt5 station", "MQTT over radio", "ROS 2 on Jetson", "Dynamixel arm"],
+      diagram: { style: "link", link: 2, groups: [{ name: "Ground", icon: "laptop", nodes: [0, 1] }, { name: "Drone", icon: "drone", nodes: [3, 4] }] },
       stack: ["ROS 2", "Jetson Orin NX", "MAVLink", "MQTT", "PyQt5"],
       links: [], note: "Work project at MarcTel, code is private"
     },
@@ -141,6 +143,7 @@ window.PROFILE = {
       title: "Noise-robust intent detection",
       blurb: "How badly do intent classifiers break on typos and speech-recognition errors, and how much can contrastive fine-tuning win back? 31 points under keyboard noise.",
       flow: ["edge-tts", "Whisper ASR", "Noisy CLINC150", "Contrastive BERT", "Intent + OOS"],
+      diagram: { style: "signal" },
       stack: ["PyTorch", "BERT", "CANINE", "Whisper"],
       links: [{ label: "Code", href: "https://github.com/AlexBrb278/nlp_project" }]
     },
@@ -148,6 +151,7 @@ window.PROFILE = {
       title: "Shade-aware walking routes",
       blurb: "Finds the shadiest walking route through a city by projecting building shadows from the sun's position every 30 minutes.",
       flow: ["OSM buildings", "Solar position", "Shadow polygons", "Weighted graph", "Mobile app"],
+      diagram: { style: "map" },
       stack: ["Shapely", "osmnx", "FastAPI", "SvelteKit", "Capacitor"],
       links: [{ label: "Code", href: "https://github.com/AlexBrb278/city_shadow_planning" }]
     }
@@ -158,8 +162,7 @@ window.PROFILE = {
       detail: "Real-time face recognition at up to 12 m, with or without masks. An SVM head cut latency by about 90% versus ArcFace and FaceNet512.",
       image: { src: "assets/img/premiucodequest.jpg", alt: "Hackathon Code Quest certificate: Premiul I (first prize), awarded to Barbu Alexandru.", caption: "First-prize certificate, Hackathon Code Quest, 5–6 December 2025" } },
     { title: "1st place, Zilele Educației Mecatronice", by: "Politehnica Bucharest", date: "May 2024",
-      detail: "MATLAB applications category, for a plant-disease detector running on a field rover.",
-      image: { src: "assets/img/trainingdeseases.png", alt: "MATLAB training progress plot: validation accuracy reaches 97.87% after 6 epochs.", caption: "MATLAB training run behind the detector: 97.87% validation accuracy, 6 epochs, 38 minutes on one GPU" } },
+      detail: "MATLAB applications category, for a plant-disease detector running on a field rover." },
     { title: "Excellence award, 46th Student Scientific Session", by: "Politehnica Bucharest", date: "Apr 2024",
       detail: "Same plant-disease system, presented a month earlier." }
   ],

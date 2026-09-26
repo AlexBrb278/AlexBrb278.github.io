@@ -81,6 +81,8 @@
   const leds = board.querySelectorAll(".led");
   const labels = board.querySelectorAll(".led-label");
   const card = $("trace-card");
+  const cardHTML = (c) => `<p class="org">${esc(c.org)}</p><p class="role">${esc(c.role)}</p><p class="when">${esc(c.dates)}, ${esc(c.place)}</p><ul>${(c.notes || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  $("trace-sizer").innerHTML = nodes.map((c) => `<div class="trace-card${c.next ? " is-next" : ""}">${cardHTML(c)}</div>`).join("");
   const lastDone = nodes.findIndex((c) => c.next);
   const doneEnd = lastDone === -1 ? n : lastDone;
   let active = Math.max(0, doneEnd - 1);
@@ -94,7 +96,7 @@
     active = i;
     const c = nodes[i];
     card.classList.toggle("is-next", !!c.next);
-    card.innerHTML = `<p class="org">${esc(c.org)}</p><p class="role">${esc(c.role)}</p><p class="when">${esc(c.dates)}, ${esc(c.place)}</p><ul>${c.notes.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+    card.innerHTML = cardHTML(c);
     leds.forEach((v, k) => { v.classList.toggle("active", k === i); v.setAttribute("aria-pressed", k === i); });
     labels.forEach((v, k) => v.classList.toggle("active", k === i));
     segs.forEach((s) => s.classList.toggle("pcb-hot", +s.dataset.seg === i));
@@ -259,7 +261,7 @@
     <div class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${P.projects.length}: ${esc(p.title)}">
       <div class="panel">
         <div class="panel-top${has ? " has-media" : ""}">
-          ${has ? mediaRow(p.media) : `<ol class="flow" aria-label="Signal chain">${p.flow.map((f) => `<li><span class="node">${esc(f)}</span></li>`).join("")}</ol>`}
+          ${has ? mediaRow(p.media) : DIAGRAMS.render(p)}
           <div class="panel-over">
             <h3>${esc(p.title)}</h3>
             <p>${esc(p.blurb)}</p>
