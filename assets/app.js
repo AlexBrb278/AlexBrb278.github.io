@@ -15,7 +15,8 @@
     check: '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     sun: '<svg viewBox="0 0 24 24" width="18" height="18"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>',
     moon: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
-    play: '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M7 4.5v15l12-7.5z"/></svg>'
+    play: '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M7 4.5v15l12-7.5z"/></svg>',
+    zoom: '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
   };
   document.querySelectorAll("[data-icon]").forEach((el) => (el.innerHTML = ICONS[el.dataset.icon] || ""));
 
@@ -48,92 +49,152 @@
   $("foot-socials").innerHTML = socialHTML(false);
   $("foot-roles").innerHTML = P.roles.map(esc).join(' <span style="color:var(--faint)">•</span> ');
 
-  /* Career trace */
+  /* Career board: each job or degree is an LED on a PCB */
   const nodes = P.career;
   const n = nodes.length;
-  // Normalised positions: x spreads across, y climbs.
-  const pos = nodes.map((_, i) => ({ x: 0.1 + (0.84 * i) / Math.max(1, n - 1), y: 0.84 - (0.7 * i) / Math.max(1, n - 1) }));
   const board = $("trace-board");
-  const svg = $("trace-svg");
-  const VBW = 1000, VBH = 300;
-  const X = (p) => p.x * VBW, Y = (p) => p.y * VBH;
-
-  function routed(points, offset = 0) {
-    // Horizontal runs with a chamfered climb before each node, like a PCB trace.
-    let d = `M0 ${Y(points[0]) + offset} H${X(points[0])}`;
-    for (let i = 1; i < points.length; i++) {
-      const a = points[i - 1], b = points[i];
-      const run = 30, diag = (Y(a) - Y(b)) * 1.1;
-      const startDiag = X(b) - run - diag;
-      d += ` H${startDiag} L${X(b) - run} ${Y(b) + offset} H${X(b)}`;
-    }
-    return d;
-  }
-  const lastDone = nodes.findIndex((c) => c.next);
-  const doneEnd = lastDone === -1 ? n : lastDone;
-  const donePts = pos.slice(0, doneEnd);
-  let svgHTML = "";
-  [18, 34, 50].forEach((off, k) => {
-    const pts = pos.slice(0, Math.max(2, doneEnd - k));
-    svgHTML += `<path class="t-bus" d="${routed(pts, off)} h${60 - k * 15}"/>`;
-  });
-  svgHTML += `<path class="t-main" d="${routed(donePts)}"/>`;
-  if (lastDone !== -1) {
-    const a = pos[lastDone - 1], b = pos[lastDone];
-    svgHTML += `<path class="t-future" d="M${X(a)} ${Y(a)} ${routed([a, b]).replace(/^M[^H]+H[\d.]+/, "")} H${VBW}"/>`;
-  }
-  svgHTML += `<line class="t-link" id="t-link" x1="0" y1="0" x2="0" y2="0"/>`;
-  svg.innerHTML = svgHTML;
+  const scroller = $("trace-scroll");
+  const B = PCB.render(nodes);
+  board.innerHTML = `${B.svg}<div class="pcb-clip" aria-hidden="true"><div class="led-glow" id="led-glow"></div></div><div class="led-leader" id="led-leader" aria-hidden="true"></div>`;
+  const pos = B.leds.map((l) => ({ x: l.x / B.W, y: l.y / B.H }));
+  const glow = $("led-glow");
+  const leader = $("led-leader");
+  const rotors = board.querySelectorAll("[data-rotor]");
+  const segs = board.querySelectorAll("[data-seg]");
 
   nodes.forEach((c, i) => {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "via" + (c.next ? " next" : "");
+    b.className = "led" + (c.next ? " next" : "");
     b.style.left = pos[i].x * 100 + "%";
     b.style.top = pos[i].y * 100 + "%";
-    b.setAttribute("aria-label", `${c.org}, ${c.dates}`);
+    b.setAttribute("aria-label", `${c.org}, ${c.dates}${c.next ? " (planned)" : ""}`);
     b.addEventListener("click", () => setActive(i));
     board.appendChild(b);
     const l = document.createElement("div");
-    l.className = "via-label";
+    l.className = "led-label";
     l.style.left = pos[i].x * 100 + "%";
     l.style.top = pos[i].y * 100 + "%";
     l.innerHTML = `<b>${esc(c.short)}</b>${esc(c.when)}`;
     board.appendChild(l);
   });
-  const vias = board.querySelectorAll(".via");
-  const labels = board.querySelectorAll(".via-label");
+  const leds = board.querySelectorAll(".led");
+  const labels = board.querySelectorAll(".led-label");
   const card = $("trace-card");
+  const lastDone = nodes.findIndex((c) => c.next);
+  const doneEnd = lastDone === -1 ? n : lastDone;
   let active = Math.max(0, doneEnd - 1);
 
   function placeCard() {
     const w = $("trace").clientWidth;
-    const cw = card.offsetWidth;
-    const nx = pos[active].x * w;
-    card.style.marginLeft = Math.min(Math.max(nx - 18, 0), w - cw) + "px";
-    const link = $("t-link");
-    link.setAttribute("x1", X(pos[active])); link.setAttribute("x2", X(pos[active]));
-    link.setAttribute("y1", -2); link.setAttribute("y2", Y(pos[active]) - 12);
+    const scrolls = board.offsetWidth > w + 1;
+    card.style.marginLeft = scrolls ? "0px" : Math.min(Math.max(pos[active].x * w - 18, 0), w - card.offsetWidth) + "px";
   }
-  function setActive(i) {
+  function setActive(i, first) {
     active = i;
     const c = nodes[i];
     card.classList.toggle("is-next", !!c.next);
     card.innerHTML = `<p class="org">${esc(c.org)}</p><p class="role">${esc(c.role)}</p><p class="when">${esc(c.dates)}, ${esc(c.place)}</p><ul>${c.notes.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
-    vias.forEach((v, k) => { v.classList.toggle("active", k === i); v.setAttribute("aria-pressed", k === i); });
+    leds.forEach((v, k) => { v.classList.toggle("active", k === i); v.setAttribute("aria-pressed", k === i); });
     labels.forEach((v, k) => v.classList.toggle("active", k === i));
+    segs.forEach((s) => s.classList.toggle("pcb-hot", +s.dataset.seg === i));
+    glow.style.left = leader.style.left = pos[i].x * 100 + "%";
+    glow.style.top = pos[i].y * 100 + "%";
+    leader.style.height = `calc(${pos[i].y * 100}% - 2.9cqw)`;
+    rotors.forEach((r) => (r.style.transform = `rotate(${i * 90}deg)`));
     placeCard();
+    const br = board.getBoundingClientRect(), sr = scroller.getBoundingClientRect();
+    if (br.width > sr.width + 1) scroller.scrollTo({ left: br.left - sr.left + scroller.scrollLeft + pos[i].x * br.width - sr.width / 2, behavior: first ? "instant" : "smooth" });
   }
-  setActive(active);
+  board.addEventListener("keydown", (e) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    const at = [...leds].indexOf(document.activeElement);
+    const j = Math.min(n - 1, Math.max(0, (at === -1 ? active : at) + step));
+    if (j !== at) { e.preventDefault(); setActive(j); leds[j].focus(); }
+  });
+  setActive(active, true);
   addEventListener("resize", placeCard);
+
+  /* Carousel: shared by the research gallery and the project slides */
+  function carousel({ root, track, prev, next, dotsEl, name }) {
+    const slides = [...track.children];
+    dotsEl.innerHTML = slides.map((_, i) => `<button type="button" role="tab" aria-label="${esc(name(i))}"></button>`).join("");
+    const dots = [...dotsEl.children];
+    let cur = 0;
+    function go(i) {
+      cur = (i + slides.length) % slides.length;
+      track.style.transform = `translateX(${-cur * 100}%)`;
+      slides.forEach((s, k) => {
+        s.setAttribute("aria-hidden", k !== cur);
+        s.querySelectorAll("a, button").forEach((el) => (el.tabIndex = k === cur ? 0 : -1));
+      });
+      dots.forEach((d, k) => d.setAttribute("aria-selected", k === cur));
+    }
+    prev.addEventListener("click", () => go(cur - 1));
+    next.addEventListener("click", () => go(cur + 1));
+    dots.forEach((d, k) => d.addEventListener("click", () => go(k)));
+    root.addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") go(cur - 1); if (e.key === "ArrowRight") go(cur + 1); });
+    let sx = null, swiped = false;
+    track.addEventListener("pointerdown", (e) => { sx = e.clientX; swiped = false; });
+    track.addEventListener("pointerup", (e) => { if (sx !== null && Math.abs(e.clientX - sx) > 40) { go(cur + (e.clientX < sx ? 1 : -1)); swiped = true; } sx = null; });
+    // A swipe that starts on a photo must not also open it.
+    track.addEventListener("click", (e) => { if (swiped) { e.preventDefault(); e.stopPropagation(); swiped = false; } }, true);
+    go(0);
+  }
+
+  /* Media: photos and clips all open in one lightbox */
+  const LB = [];
+  const mediaItem = (m) => {
+    const id = LB.push(m) - 1;
+    const st = `--r:${+(m.ratio || 16 / 9).toFixed(4)}${m.position ? `;--pos:${esc(m.position)}` : ""}`;
+    const name = esc(m.alt || "");
+    return m.type === "video"
+      ? `<button type="button" class="mi mi-video" style="${st}" data-lb="${id}" aria-label="Play clip: ${name}"><img class="mi-still" src="${esc(m.poster)}" alt="" loading="lazy" decoding="async" draggable="false"><video class="mi-vid" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" src="${esc(m.src)}"></video><span class="mi-tag">${ICONS.play}Clip</span></button>`
+      : `<button type="button" class="mi" style="${st}" data-lb="${id}" aria-label="Enlarge photo: ${name}"><img class="mi-still" src="${esc(m.src)}" alt="${name}" loading="lazy" decoding="async" draggable="false"><span class="mi-tag mi-zoom" aria-hidden="true">${ICONS.zoom}</span></button>`;
+  };
+  // Items sit side by side at the same height, whatever their aspect ratios.
+  const mediaRow = (items, cls = "") => {
+    const sum = items.reduce((a, m) => a + (m.ratio || 16 / 9), 0);
+    return `<div class="mrow ${cls}" style="--sum:${+sum.toFixed(4)};--n:${items.length}">${items.map(mediaItem).join("")}</div>`;
+  };
+  const thumb = (im, title) => {
+    if (!im) return "";
+    const id = LB.push({ type: "image", ...im }) - 1;
+    return `<button type="button" class="thumb" data-lb="${id}" aria-label="View: ${esc(title)}"><img src="${esc(im.src)}" alt="" loading="lazy" decoding="async"><span class="thumb-ico" aria-hidden="true">${ICONS.zoom}</span></button>`;
+  };
+  const lb = $("lightbox");
+  const lbMedia = $("lb-media");
+  function openLB(id) {
+    const m = LB[id];
+    const cover = m.lightbox === "cover";
+    lbMedia.className = "lb-media" + (cover ? " cover" : "");
+    lbMedia.style.cssText = cover ? `--r:${m.ratio};--pos:${m.position || "50% 50%"}` : "";
+    lbMedia.innerHTML = m.type === "video"
+      ? `<video class="lb-el" src="${esc(m.src)}" controls autoplay loop playsinline${m.poster ? ` poster="${esc(m.poster)}"` : ""}></video>`
+      : `<img class="lb-el" src="${esc(m.src)}" alt="${esc(m.alt || "")}">`;
+    $("lb-cap").textContent = m.caption || m.alt || "";
+    $("lb-open").hidden = m.type === "video";
+    $("lb-open").href = m.src;
+    lb.showModal();
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-lb]"); if (b) openLB(+b.dataset.lb); });
+  lb.addEventListener("click", (e) => { if (!e.target.closest(".lb-fig") || e.target.closest("[data-lb-close]")) lb.close(); });
+  lb.addEventListener("close", () => { if (!lb.open) lbMedia.innerHTML = ""; });
 
   /* Research */
   const R = P.research;
   $("research-title").textContent = R.title;
   $("research-meta").textContent = R.meta;
   $("research-summary").textContent = R.summary;
-  $("research-img").src = R.image;
-  $("research-img").alt = R.imageAlt;
+  const gTrack = $("gal-track");
+  gTrack.innerHTML = R.gallery.map((sl, i) => `
+    <div class="gal-slide${sl.fill ? " fill" : ""}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${R.gallery.length}">
+      <span class="gal-bg" style="background-image:url('${esc(sl.items[0].poster || sl.items[0].src)}')" aria-hidden="true"></span>
+      ${mediaRow(sl.items, sl.fill ? "fill" : "")}
+      <p class="gal-cap">${esc(sl.caption)}</p>
+    </div>`).join("");
+  carousel({ root: $("gallery"), track: gTrack, prev: $("gal-prev"), next: $("gal-next"), dotsEl: $("gal-dots"), name: (i) => R.gallery[i].caption });
   $("timeline-note").textContent = R.timelineNote;
   const pct = (t) => (t / R.span) * 100;
   let ticks = "";
@@ -190,42 +251,26 @@
   /* Skills */
   $("skills-list").innerHTML = P.skills.map((s) => `<li>${esc(s)}</li>`).join("");
 
-  /* Carousel */
+  /* Projects: a clip or photo replaces the flow diagram when there is one */
   const track = $("car-track");
-  track.innerHTML = P.projects.map((p, i) => `
-    <div class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${P.projects.length}: ${esc(p.title)}" ${i ? 'aria-hidden="true"' : ""}>
+  track.innerHTML = P.projects.map((p, i) => {
+    const has = !!(p.media && p.media.length);
+    return `
+    <div class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${P.projects.length}: ${esc(p.title)}">
       <div class="panel">
-        <div class="panel-top">
-          <ol class="flow" aria-label="Signal chain">${p.flow.map((f) => `<li><span class="node">${esc(f)}</span></li>`).join("")}</ol>
+        <div class="panel-top${has ? " has-media" : ""}">
+          ${has ? mediaRow(p.media) : `<ol class="flow" aria-label="Signal chain">${p.flow.map((f) => `<li><span class="node">${esc(f)}</span></li>`).join("")}</ol>`}
           <div class="panel-over">
             <h3>${esc(p.title)}</h3>
             <p>${esc(p.blurb)}</p>
-            <div class="panel-links">${p.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" tabindex="${i ? -1 : 0}">${ICONS.github.replace("<svg", '<svg width="13" height="13"')}${esc(l.label)}</a>`).join("")}${p.note ? `<span class="note">${esc(p.note)}</span>` : ""}</div>
+            <div class="panel-links">${p.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${ICONS.github.replace("<svg", '<svg width="13" height="13"')}${esc(l.label)}</a>`).join("")}${p.note ? `<span class="note">${esc(p.note)}</span>` : ""}</div>
           </div>
         </div>
         <div class="panel-strip"><p>Tech stack</p><ul>${p.stack.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>
       </div>
-    </div>`).join("");
-  const slides = track.children;
-  const dots = $("car-dots");
-  dots.innerHTML = P.projects.map((p, i) => `<button type="button" role="tab" aria-label="${esc(p.title)}" aria-selected="${i === 0}"></button>`).join("");
-  let cur = 0;
-  function go(i) {
-    cur = (i + slides.length) % slides.length;
-    track.style.transform = `translateX(${-cur * 100}%)`;
-    [...slides].forEach((s, k) => {
-      s.setAttribute("aria-hidden", k !== cur);
-      s.querySelectorAll("a").forEach((a) => (a.tabIndex = k === cur ? 0 : -1));
-    });
-    [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === cur));
-  }
-  $("car-prev").addEventListener("click", () => go(cur - 1));
-  $("car-next").addEventListener("click", () => go(cur + 1));
-  [...dots.children].forEach((d, k) => d.addEventListener("click", () => go(k)));
-  $("carousel").addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") go(cur - 1); if (e.key === "ArrowRight") go(cur + 1); });
-  let sx = null;
-  track.addEventListener("pointerdown", (e) => (sx = e.clientX));
-  track.addEventListener("pointerup", (e) => { if (sx !== null && Math.abs(e.clientX - sx) > 40) go(cur + (e.clientX < sx ? 1 : -1)); sx = null; });
+    </div>`;
+  }).join("");
+  carousel({ root: $("carousel"), track, prev: $("car-prev"), next: $("car-next"), dotsEl: $("car-dots"), name: (i) => P.projects[i].title });
 
   /* Repo cards: one component, two data sources */
   const LANG = { Python: "#3572A5", "C++": "#f34b7d", C: "#8a8f99", JavaScript: "#f1e05a", TypeScript: "#3178c6", MATLAB: "#e16737", "Jupyter Notebook": "#DA5B0B", Svelte: "#ff3e00", HTML: "#e34c26", Shell: "#89e051" };
@@ -281,10 +326,10 @@
   }
 
   /* Awards and certifications */
-  $("awards").innerHTML = P.awards.map((a) => `<li><span class="badge" aria-hidden="true">${a.title.startsWith("1st") ? "1st" : "★"}</span><div><h3>${esc(a.title)}</h3><p class="by">${esc(a.by)}<span class="bar">|</span>${esc(a.date)}</p><p class="detail">${esc(a.detail)}</p></div></li>`)
+  $("awards").innerHTML = P.awards.map((a) => `<li${a.image ? ' class="has-thumb"' : ""}><span class="badge" aria-hidden="true">${a.title.startsWith("1st") ? "1st" : "★"}</span><div><h3>${esc(a.title)}</h3><p class="by">${esc(a.by)}<span class="bar">|</span>${esc(a.date)}</p><p class="detail">${esc(a.detail)}</p></div>${thumb(a.image, a.title)}</li>`)
     .join("");
   const SHOW = 4;
-  $("certs").innerHTML = P.certifications.map((c, i) => `<li class="${i >= SHOW ? "extra" : ""}" ${i >= SHOW ? "hidden" : ""}><span class="badge" aria-hidden="true">${c.by.startsWith("Cisco") ? "CC" : c.by === "Siemens" ? "SE" : ICONS.doc.replace("<svg", '<svg width="14" height="14"')}</span><div><h3>${esc(c.title)}</h3><p class="by">${c.by ? esc(c.by) + '<span class="bar">|</span>' : ""}${esc(c.date)}</p></div></li>`).join("");
+  $("certs").innerHTML = P.certifications.map((c, i) => `<li class="${i >= SHOW ? "extra" : ""}${c.image ? " has-thumb" : ""}" ${i >= SHOW ? "hidden" : ""}><span class="badge" aria-hidden="true">${c.by.startsWith("Cisco") ? "CC" : c.by === "Siemens" ? "SE" : ICONS.doc.replace("<svg", '<svg width="14" height="14"')}</span><div><h3>${esc(c.title)}</h3><p class="by">${c.by ? esc(c.by) + '<span class="bar">|</span>' : ""}${esc(c.date)}</p></div>${thumb(c.image, c.title)}</li>`).join("");
   const more = $("certs-more");
   const extra = P.certifications.length - SHOW;
   if (extra > 0) {
@@ -296,6 +341,17 @@
       more.textContent = open ? "Show fewer" : `+ ${extra} more`;
     });
   } else more.parentElement.remove();
+
+  /* Clips play only while they are on screen */
+  const clips = document.querySelectorAll(".mi-vid");
+  if (!reduce && "IntersectionObserver" in window && clips.length) {
+    const vio = new IntersectionObserver((entries) => entries.forEach((en) => {
+      const v = en.target;
+      if (en.isIntersecting) v.play().then(() => v.parentElement.classList.add("is-playing")).catch(() => {});
+      else v.pause();
+    }), { threshold: 0.4 });
+    clips.forEach((v) => vio.observe(v));
+  }
 
   /* Sync line */
   if (G.generated_at) {

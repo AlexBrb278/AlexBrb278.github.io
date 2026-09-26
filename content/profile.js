@@ -14,7 +14,7 @@ window.PROFILE = {
     { label: "Email", href: "mailto:alexbrb27@gmail.com", icon: "mail" }
   ],
 
-  // Career trace: oldest first. The last entry with `next: true` is drawn dashed.
+  // Career board: every entry is an LED, oldest first. `next: true` draws it unlit, joined by an unrouted wire.
   career: [
     {
       short: "UPB, BSc", when: "2021",
@@ -49,14 +49,16 @@ window.PROFILE = {
       role: "Software Engineer", dates: "Nov 2025 – present", place: "Bucharest",
       notes: [
         "Built the ROS 2 control stack for a 6-DOF arm mounted on a drone, plus the PyQt5 ground station that drives it over radio.",
-        "Designed a C++17 file relay that moves sonar data from an underwater vehicle, through a UAV, to a Qt6 ground station."
+        "Designed a C++ file relay that moves sonar data from an underwater vehicle, through a UAV, to a Qt6 ground station."
       ]
     },
     {
-      short: "UPB, End of Msc?", when: "2027", next: true,
-      org: "Your lab, maybe",
-      role: "Finishing the dissertation and publishing it", dates: "From 2027", place: "Bucharest",
-      
+      short: "End of masters", when: "2027", next: true,
+      org: "UPB",
+      role: "Msc, Robotics and Automation", dates: "2027", place: "Bucharest",
+      notes: [
+        "Finishing the Dissertation and publishing it."
+      ]
     }
   ],
 
@@ -65,8 +67,20 @@ window.PROFILE = {
     meta: "MSc dissertation, Politehnica Bucharest. Advisor: Ș.l. Dr. Ing. Alexandra Ștefania Ghiță (Mănica)",
     summary:
       "You say “robot, pick up the bottle”. The arm hears it, finds the bottle with an open-vocabulary detector it was never trained for, works out where it is in 3D from a single RGB camera, and shows you the planned grasp in RViz before it moves. Everything runs on a Jetson Orin NX with a 3D-printed copy of the Interbotix VX300s arm.",
-    image: "assets/img/detection.jpg",
-    imageAlt: "Camera frame from the arm: YOLO-World boxes around a bottle held up by the operator, the operator, and a hand.",
+    // Slides for the media gallery. `ratio` is width / height. `fill` lets one item cover the whole slide.
+    gallery: [
+      {
+        fill: true, caption: "Live frame from the arm's shoulder camera",
+        items: [{ type: "image", src: "assets/img/detection.jpg", ratio: 16 / 9, alt: "Camera frame from the arm: YOLO-World boxes around a bottle held up by the operator, the operator, and a hand." }]
+      },
+      {
+        caption: "The 3D-printed arm, and an early prototype picking up a bottle",
+        items: [
+          { type: "image", src: "assets/img/arm.jpg", ratio: 900 / 1200, alt: "The 3D-printed arm in the lab: black printed links, servos and braided cable sleeving." },
+          { type: "video", src: "assets/img/armvideo_prototype1.mp4", poster: "assets/img/armvideo_prototype1.jpg", ratio: 576 / 1024, alt: "Prototype 1 of the arm reaching down to a bottle on the bench and lifting it." }
+        ]
+      }
+    ],
     // Timeline tracks, in seconds. `measured: false` blocks are drawn as illustrative.
     span: 6,
     tracks: [
@@ -91,7 +105,7 @@ window.PROFILE = {
     "Fusion 360", "SolidWorks", "Git"
   ],
 
-  // Featured carousel. `flow` is the signal chain drawn on the slide.
+  // Featured carousel. `flow` is the signal chain drawn on the slide; `media` (photos, clips) replaces it when present.
   projects: [
     {
       title: "Robotic arm on a drone",
@@ -104,6 +118,11 @@ window.PROFILE = {
       title: "Delta robot sorter",
       blurb: "Designed, printed and built a delta robot that sorts nuts and washers with an electromagnet, driven by vision.",
       flow: ["Pi camera", "Custom YOLOv8", "Position + IK", "Path planning", "Stepper motors"],
+      media: [
+        { type: "image", src: "assets/img/robolicenta.jpeg", ratio: 1152 / 2048, alt: "The finished delta robot on its aluminium frame, three arms hanging from the motor plate." },
+        // The clip has black bars either side of a 1134 x 1080 picture; ratio + position crop them away.
+        { type: "video", src: "assets/img/deltarobotmovements.mp4", poster: "assets/img/deltarobotmovements.jpg", ratio: 1134 / 1080, position: "51.1% 50%", lightbox: "cover", alt: "CAD animation of the delta robot's three arms moving the effector around." }
+      ],
       stack: ["Raspberry Pi 5", "YOLOv8", "Fusion 360", "MATLAB"],
       links: [], note: "BSc thesis"
     },
@@ -111,6 +130,10 @@ window.PROFILE = {
       title: "Smart parking on the camera",
       blurb: "Parking-space detection that runs inside an Axis camera, with user-drawn zones and plate recognition downstream.",
       flow: ["ARTPEC-8 DLPU", "Quantized YOLOv5", "Zone overlap", "MQTT", "LPR + SQLite"],
+      // A phone recording of a laptop; the crop keeps the screen. The lightbox shows the whole frame.
+      media: [
+        { type: "video", src: "assets/img/smartparking.mp4", poster: "assets/img/smartparking.jpg", ratio: 16 / 9, position: "50% 53%", alt: "Screen recording of the parking web app: drawing a parking zone over the camera view, then the occupancy history table." }
+      ],
       stack: ["C", "Axis SDK", "Docker", "YOLOv5", "MQTT"],
       links: [], note: "Work project at Vision Technology Development"
     },
@@ -132,20 +155,25 @@ window.PROFILE = {
 
   awards: [
     { title: "1st place, CodeQuest Hackathon, AI category", by: "Serviciul de Informații Externe", date: "Dec 2025",
-      detail: "Real-time face recognition at up to 12 m, with or without masks. An SVM head cut latency by about 90% versus ArcFace and FaceNet512." },
+      detail: "Real-time face recognition at up to 12 m, with or without masks. An SVM head cut latency by about 90% versus ArcFace and FaceNet512.",
+      image: { src: "assets/img/premiucodequest.jpg", alt: "Hackathon Code Quest certificate: Premiul I (first prize), awarded to Barbu Alexandru.", caption: "First-prize certificate, Hackathon Code Quest, 5–6 December 2025" } },
     { title: "1st place, Zilele Educației Mecatronice", by: "Politehnica Bucharest", date: "May 2024",
-      detail: "MATLAB applications category, for a plant-disease detector running on a field rover." },
+      detail: "MATLAB applications category, for a plant-disease detector running on a field rover.",
+      image: { src: "assets/img/trainingdeseases.png", alt: "MATLAB training progress plot: validation accuracy reaches 97.87% after 6 epochs.", caption: "MATLAB training run behind the detector: 97.87% validation accuracy, 6 epochs, 38 minutes on one GPU" } },
     { title: "Excellence award, 46th Student Scientific Session", by: "Politehnica Bucharest", date: "Apr 2024",
       detail: "Same plant-disease system, presented a month earlier." }
   ],
 
   certifications: [
-    { title: "CCNAv7: Enterprise Networking, Security and Automation", by: "Cisco Networking Academy", date: "Dec 2025" },
+    { title: "CCNAv7: Enterprise Networking, Security and Automation", by: "Cisco Networking Academy", date: "Dec 2025",
+      image: { src: "assets/img/ccnacertificat2.png", alt: "Cisco Networking Academy certificate: CCNA Enterprise Networking, Security, and Automation, completed 7 December 2025.", caption: "CCNA: Enterprise Networking, Security, and Automation, 7 Dec 2025" } },
     { title: "Supervised Machine Learning: Regression and Classification", by: "", date: "Jan 2025" },
     { title: "Interfacing with the Arduino / Raspberry Pi", by: "", date: "Jan 2025" },
     { title: "Python101: Modules, OOP, Web-Scraping", by: "", date: "Jan 2025" },
-    { title: "CCNAv7: Switching, Routing, and Wireless Essentials", by: "Cisco Networking Academy", date: "Jun 2024" },
-    { title: "CCNAv7: Introduction to Networks", by: "Cisco Networking Academy", date: "Feb 2024" },
+    { title: "CCNAv7: Switching, Routing, and Wireless Essentials", by: "Cisco Networking Academy", date: "Jul 2024",
+      image: { src: "assets/img/ccnacertificat1.png", alt: "Cisco Networking Academy certificate: CCNAv7 Switching, Routing, and Wireless Essentials, completed 20 July 2024.", caption: "CCNAv7: Switching, Routing, and Wireless Essentials, 20 Jul 2024" } },
+    { title: "CCNAv7: Introduction to Networks", by: "Cisco Networking Academy", date: "Feb 2024",
+      image: { src: "assets/img/ccnaIntroduction.png", alt: "Cisco Networking Academy certificate of course completion: CCNAv7 Introduction to Networks, 26 February 2024.", caption: "CCNAv7: Introduction to Networks, 26 Feb 2024" } },
     { title: "Solid Edge Associate Level Certification", by: "Siemens", date: "Jan 2024" }
   ]
 };
