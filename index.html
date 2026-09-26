@@ -57,7 +57,7 @@
             <h2 id="career-h">Career</h2>
             <span class="annot" aria-hidden="true">
               <svg viewBox="0 0 60 40" width="46" height="30"><path d="M56 6 C 40 2, 30 10, 36 18 C 42 26, 28 30, 8 30 M8 30 l7 -6 M8 30 l8 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-              tap a node
+              tap an LED
             </span>
           </div>
         </div>
@@ -65,8 +65,8 @@
       </div>
       <div class="trace" id="trace">
         <article class="trace-card" id="trace-card" aria-live="polite"></article>
-        <div class="trace-board" id="trace-board">
-          <svg class="trace-svg" id="trace-svg" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="trace-scroll" id="trace-scroll">
+          <div class="trace-board" id="trace-board" role="group" aria-label="Career timeline, drawn as a circuit board. Each LED is a job or degree."></div>
         </div>
       </div>
     </section>
@@ -81,10 +81,12 @@
       <h3 class="research-title" id="research-title"></h3>
       <p class="research-meta" id="research-meta"></p>
       <p class="prose" id="research-summary"></p>
-      <figure class="frame">
-        <img id="research-img" alt="" loading="lazy">
-        <figcaption>Live frame from the arm's shoulder camera</figcaption>
-      </figure>
+      <div class="gallery" id="gallery" aria-roledescription="carousel" aria-label="Research photos and clips">
+        <div class="gal-viewport"><div class="gal-track" id="gal-track"></div></div>
+        <button class="car-btn prev" id="gal-prev" type="button" aria-label="Previous slide"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="car-btn next" id="gal-next" type="button" aria-label="Next slide"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="dots gal-dots" id="gal-dots" role="tablist" aria-label="Choose slide"></div>
       <div class="editor" id="editor" role="img" aria-label="Pipeline timeline"></div>
       <p class="fine" id="timeline-note"></p>
       <ul class="status" id="research-status"></ul>
@@ -136,8 +138,17 @@
     </footer>
   </main>
 
+  <dialog class="lb" id="lightbox" aria-label="Media viewer">
+    <button class="lb-close" type="button" data-lb-close aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+    <figure class="lb-fig">
+      <div class="lb-media" id="lb-media"></div>
+      <figcaption><span id="lb-cap"></span><a id="lb-open" href="#" target="_blank" rel="noopener">Open original</a></figcaption>
+    </figure>
+  </dialog>
+
   <script src="content/profile.js"></script>
   <script src="data/github.js"></script>
+  <script src="assets/pcb.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>
