@@ -169,6 +169,8 @@ window.PROFILE = {
   ],
 
   certifications: [
+    { title: "Github Foundation", by: "DataCamp", date: "Sep 2026",
+      image: { src: "assets/img/gitfoundations.png", alt: "DataCamp certificate of course completion: Github Foundation, 20 September 2026.", caption: "Github Foundation, 20 Sep 2026" }},
     { title: "CCNAv7: Enterprise Networking, Security and Automation", by: "Cisco Networking Academy", date: "Dec 2025",
       image: { src: "assets/img/ccnacertificat2.png", alt: "Cisco Networking Academy certificate: CCNA Enterprise Networking, Security, and Automation, completed 7 December 2025.", caption: "CCNA: Enterprise Networking, Security, and Automation, 7 Dec 2025" } },
     { title: "Supervised Machine Learning: Regression and Classification", by: "", date: "Jan 2025",
