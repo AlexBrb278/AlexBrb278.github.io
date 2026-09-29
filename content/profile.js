@@ -174,7 +174,7 @@ window.PROFILE = {
     { title: "CCNAv7: Enterprise Networking, Security and Automation", by: "Cisco Networking Academy", date: "Dec 2025",
       image: { src: "assets/img/ccnacertificat2.png", alt: "Cisco Networking Academy certificate: CCNA Enterprise Networking, Security, and Automation, completed 7 December 2025.", caption: "CCNA: Enterprise Networking, Security, and Automation, 7 Dec 2025" } },
     { title: "Supervised Machine Learning: Regression and Classification", by: "", date: "Jan 2025",
-      image: { src: "assets/img/supervisedML.png", alt: "Certificate of course completion: Supervised Machine Learning: Regression and Classification, 20 January 2025.", caption: "Supervised Machine Learning: Regression and Classification, 20 Jan 2025" }},
+      image: { src: "assets/img/supervisedML.jpeg", alt: "Certificate of course completion: Supervised Machine Learning: Regression and Classification, 20 January 2025.", caption: "Supervised Machine Learning: Regression and Classification, 20 Jan 2025" }},
     { title: "Interfacing with the Arduino / Raspberry Pi", by: "", date: "Jan 2025",
       image: { src: "assets/img/certificatArduino.png", alt: "Certificate of course completion: Interfacing with the Arduino / Raspberry Pi, 20 January 2025.", caption: "Interfacing with the Arduino / Raspberry Pi, 20 Jan 2025" }},
     { title: "The Arduino Platform and C Programming", by: "", date: "Jan 2025",
